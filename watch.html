@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Video</title><link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script></head>
+<body><main>
+<div class="row"><strong id="who"></strong>
+<span><button class="ghost" id="fs">Full screen</button> <button class="ghost" id="out">Logout</button></span></div>
+<div class="player" id="player" hidden></div>
+<p id="msg" class="muted">Loading...</p>
+</main>
+<script src="app.js"></script>
+<script>
+// Apnar YouTube Unlisted video er ID ekhane boshan (link er v= er pore ongsho)
+const VIDEO_ID = "uFVIN1Plq1U";
+
+(async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { location.href = "login.html"; return; }
+  const user = session.user;
+  document.getElementById("who").textContent = user.email;
+
+  // Video + watermark. allowfullscreen nai, jate watermark shoho nijer Full screen button ta e use hoy.
+  const player = document.getElementById("player");
+  player.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + VIDEO_ID +
+    '?rel=0&modestbranding=1" allow="encrypted-media; picture-in-picture"></iframe><div id="wm"></div>';
+  player.hidden = false;
+  document.getElementById("msg").textContent = "";
+
+  const wm = document.getElementById("wm");
+  const label = user.email + " | " + user.id.slice(0, 8);
+  const move = () => {
+    wm.textContent = label;
+    wm.style.top = (5 + Math.random() * 85) + "%";
+    wm.style.left = (2 + Math.random() * 55) + "%";
+  };
+  move(); setInterval(move, 7000);
+
+  // Watch log
+  await db.from("watch_logs").insert({ video_id: VIDEO_ID, user_agent: navigator.userAgent });
+
+  document.getElementById("fs").onclick = () => player.requestFullscreen && player.requestFullscreen();
+  document.getElementById("out").onclick = async () => { await db.auth.signOut(); location.href = "login.html"; };
+})();
+</script></body></html>

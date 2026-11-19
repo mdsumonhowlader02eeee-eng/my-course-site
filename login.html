@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Login</title><link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script></head>
+<body><main><div class="card">
+<h1>Login</h1>
+<p class="muted">Email ar password din.</p>
+<label for="email">Email</label>
+<input id="email" type="email" autocomplete="email">
+<label for="pw">Password (kom pokkhe 8 okkhor)</label>
+<input id="pw" type="password" autocomplete="current-password">
+<button id="in">Login</button>
+<button id="up" class="ghost">Notun account</button>
+<div id="msg" role="alert"></div>
+</div></main>
+<script src="app.js"></script>
+<script>
+const msg = t => document.getElementById("msg").textContent = t;
+const val = id => document.getElementById(id).value.trim();
+document.getElementById("in").onclick = async () => {
+  const { error } = await db.auth.signInWithPassword({ email: val("email"), password: val("pw") });
+  if (error) return msg("Login hoy nai: " + error.message);
+  location.href = "watch.html";
+};
+document.getElementById("up").onclick = async () => {
+  const { error } = await db.auth.signUp({ email: val("email"), password: val("pw") });
+  if (error) return msg("Account hoy nai: " + error.message);
+  msg("Account toiri hoise. Email e confirm link ashle seta e click kore tarpor login korun.");
+  document.getElementById("msg").style.color = "inherit";
+};
+</script></body></html>
